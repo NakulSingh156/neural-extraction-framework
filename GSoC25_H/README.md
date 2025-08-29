@@ -3,9 +3,11 @@
 This project aims to enhance and evaluate the relation extraction pipeline for Hindi Wikipedia articles, utilizing a combination of state-of-the-art language models and rule-based methods. 
 This project builds on the work done in GSoC24 for the Hindi chapter. The goals of this project were multi-fold:
 
-Weekly Blog: https://advenk.github.io/av-blog/
-Hindi SPARQL temporary endpoint deployed at http://95.217.58.54:8890/sparql
-Unmerged PR for Hindi mappings and extractors: https://github.com/dbpedia/extraction-framework/pull/776 - Can be merged only after updating the mappings via UI. 
+- Weekly Blog: https://advenk.github.io/av-blog/
+- Hindi SPARQL temporary endpoint deployed at http://95.217.58.54:8890/sparql
+- Unmerged PR for Hindi mappings and extractors: https://github.com/dbpedia/extraction-framework/pull/776 - Can be merged only after updating the mappings via UI.
+- SPARQL performance testing code (not to be merged) - https://github.com/advenk/virtuoso-sparql-endpoint-quickstart/tree/gsoc25_hindi_chapter
+  
 
 ### What Work was Done
 * Streamline the exisiting pipeline and make it easy to run
