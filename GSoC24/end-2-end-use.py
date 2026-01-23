@@ -46,21 +46,36 @@ def main():
     model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
     print(f"Loading model: {model_name}...")
     
-    # Check for Mac (MPS) or NVidia (CUDA) support automatically
-    device = "cpu"
-    # device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+    # 1. Detect Device
+    if torch.cuda.is_available():
+        device = "cuda"
+        dtype = torch.float16
+    elif torch.backends.mps.is_available():
+        device = "mps"
+        dtype = torch.float16
+    else:
+        device = "cpu"
+        dtype = torch.float32  # CPU doesn't support float16 well
+        
     print(f"   Using device: {device.upper()}")
 
     try:
-        # Load via Hugging Face Transformers first (Standard Industry Pattern)
-        hf_model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map=device)
+        # 2. Load via Transformers
+        # We explicitly handle device_map to prevent CPU crashes
+        hf_model = AutoModelForCausalLM.from_pretrained(
+            model_name, 
+            torch_dtype=dtype,
+            device_map=device  # Auto-dispatch to correct device
+        )
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         
-        # Wrap with Outlines
+        # 3. Wrap with Outlines
         model = outlines.from_transformers(hf_model, tokenizer)
         print("Model loaded successfully!")
     except Exception as e:
         print(f"Failed to load model: {e}")
+        import traceback
+        traceback.print_exc()
         return
 
     # --- 2. Determine Input Source ---

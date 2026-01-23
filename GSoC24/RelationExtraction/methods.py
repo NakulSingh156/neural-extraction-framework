@@ -1,4 +1,4 @@
-import pandas as pd
+
 import outlines
 from pydantic import BaseModel, Field
 
@@ -29,8 +29,11 @@ def get_triples_from_sentence(user_prompt, model):
 
     try:
         # --- 3. Run Inference (The V1.2 Way) ---
-        # In Outlines v1.2+, you call the model directly with the prompt and the schema
-        result = model(full_prompt, TriplesResponse)
+        # FIX: We must use 'type' or 'output_type' depending on exact version, 
+        # but passing the schema as the second argument is the standard pattern 
+        # for the 'generate.json' replacement.
+        # However, CodeRabbit suggests using the keyword argument for safety.
+        result = model(full_prompt, output_type=TriplesResponse)
         
         # --- 4. Convert to List of Dictionaries ---
         triples_data = []
