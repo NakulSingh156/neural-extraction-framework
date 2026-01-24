@@ -13,4 +13,5 @@ wget "https://dl.fbaipublicfiles.com/GENRE/fairseq_multilingual_entity_disambigu
 tar -xzvf fairseq_multilingual_entity_disambiguation.tar.gz -C ./EL_model
 wget -P ./EL_model "http://dl.fbaipublicfiles.com/GENRE/titles_lang_all105_marisa_trie_with_redirect.pkl"
 
-# rm fairseq_multilingual_entity_disambiguation.tar.gz # remove the tar.gz file after extraction
+# remove the tar.gz files after extraction (run if successful)
+# rm wl_coref_transmucores.tar.gz files_indie.tar.gz fairseq_multilingual_entity_disambiguation.tar.gz
