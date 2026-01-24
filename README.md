@@ -19,10 +19,14 @@ The Neural Extraction Framework is a specialized repository under the DBpedia pr
 ### 🎯 Key Features
 
 - **Neural-based Triple Extraction**: Extract RDF triples using language models
-- **Multi-language Support**: Specialized pipelines for various languages (Hindi, English, etc.)
-- **Knowledge Graph Enhancement**: Link prediction and entity/predicate linking
+- **Multi-language Support**: Specialized pipelines for various languages (English, Hindi, etc.)
 - **Semantic Web Integration**: RDF/SPARQL compatible outputs
 - **Evaluation Frameworks**: Benchmarking tools for IE performance
+
+## 🗣️ Supported Languages
+
+- 🇬🇧 English (no suffix)
+- 🇮🇳 Hindi (`_H` suffix)
 
 ---
 
@@ -30,22 +34,9 @@ The Neural Extraction Framework is a specialized repository under the DBpedia pr
 
 This repository hosts Google Summer of Code (GSoC) projects that advance neural extraction techniques:
 
-### 📂 Project Directories
-
-```
-neural-extraction-framework/
-├── GSoC21/          # GSoC 2021 - Neural Extraction Framework Foundations
-├── GSoC22/          # GSoC 2022 - Relation Extraction Enhancements  
-├── GSoC23/          # GSoC 2023 - New Relation Extraction Methods
-├── GSoC24/          # GSoC 2024 - LLM Integration
-└── GSoC24_H/        # GSoC 2024 - Hindi Chapter
-```
-
-> **Note**: For GSoC 2025 work on Hindi IE Enhancement, see [GSOC25_H](https://gist.github.com/advenk/8ce1bea298ca5c13829c8737bc21cc93).
-
 ### 🏆 Recent Contributions
 
-- **GSoC 2025**: Enhanced Hindi Information Extraction pipeline with SLM integration, link prediction, and predicate linking
+- **GSoC 2025**: Enhanced English and Hindi Information Extraction pipelines with SLM integration, link prediction, and predicate linking
 - **GSoC 2024**: Language model integration and pipeline optimization
 - **GSoC 2023**: Advanced relation extraction methods
 - **GSoC 2022**: Relation extraction pipeline improvements
@@ -79,7 +70,7 @@ git clone https://github.com/dbpedia/neural-extraction-framework.git
 cd neural-extraction-framework
 
 # Navigate to specific GSoC project
-cd GSoC24_H  # Example: Hindi Chapter
+cd GSoC25_H  # Example: Hindi Chapter
 
 # Follow project-specific setup
 # Each directory has its own README with detailed instructions
