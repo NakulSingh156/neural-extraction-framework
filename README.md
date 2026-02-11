@@ -109,9 +109,26 @@ For a deeper evaluation, we have included a diverse dataset of **50 sentences** 
 
 ### Prerequisites
 ```bash
-# Navigate to the project folder first
-cd "Desktop/Neural Extraction Framework Folder"
+git clone https://github.com/dbpedia/neural-extraction-framework.git
+cd neural-extraction-framework
+```
 
+### 🐳 Running with Docker (Recommended)
+To ensure reproducibility and avoid dependency issues:
+
+```bash
+docker compose up --build
+```
+
+Once running, you can execute specific modules:
+
+```bash
+# Run the pipeline
+docker compose exec neuro-symbolic-extractor python src/main.py
+```
+
+### Manual Installation
+```bash
 # Install dependencies
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm

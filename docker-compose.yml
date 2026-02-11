@@ -1,11 +1,15 @@
+version: '3.8'
+
 services:
   neuro-symbolic-extractor:
     build: .
     container_name: dbpedia-neuro-symbolic
     volumes:
-      - .:/app # Maps your local folder to the container (Hot Reload)
+      - .:/app
     environment:
       - MAX_RETRIES=3
       - DBPEDIA_ENDPOINT=https://dbpedia.org/sparql
-    command: python src/main.py # Default script to run
-    restart: unless-stopped
+    # Change 1: Keep container alive so you can exec into it, instead of running main.py and exiting
+    command: tail -f /dev/null
+    # Change 2: Remove restart policy to prevent infinite loops
+    restart: "no"

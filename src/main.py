@@ -14,13 +14,20 @@ class RelationExtractor:
         self.embeddings = {k: self.model.encode(v) for k, v in self.predicates.items()}
 
     def extract(self, text, subj, obj):
-        # Extract phrase between entities
-        try:
-            start = text.find(subj) + len(subj)
-            end = text.find(obj)
-            phrase = text[start:end].strip() if start < end else text
-        except: phrase = text
-        
+        subj_idx = text.find(subj)
+        obj_idx = text.find(obj)
+
+        # Fix: Only slice if both entities are actually found
+        if subj_idx != -1 and obj_idx != -1:
+            start = subj_idx + len(subj)
+            end = obj_idx
+            if start < end:
+                phrase = text[start:end].strip()
+            else:
+                phrase = text # Fallback
+        else:
+            phrase = text # Fallback if not found
+
         # Semantic Match
         query_vec = self.model.encode(phrase)
         best_pred, best_score = "None", 0.0

@@ -66,6 +66,9 @@ class NeuroSymbolicReasoner:
             return []
 
     def _plot_graph(self, triples):
+        import matplotlib
+        matplotlib.use('Agg') # Fix: Use non-interactive backend for Docker
+        
         G = nx.DiGraph()
         for s, p, o in triples:
             G.add_edge(s, o, label=p)
@@ -78,7 +81,11 @@ class NeuroSymbolicReasoner:
         nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'label'), font_color='red')
         plt.title("Neuro-Symbolic Reasoner Output")
         plt.axis('off')
-        plt.show()
+        
+        # Fix: Save instead of show
+        plt.savefig("reasoning_output.png")
+        print("✅ Graph saved to 'reasoning_output.png'")
+        plt.close()
 
 if __name__ == "__main__":
     reasoner = NeuroSymbolicReasoner()
