@@ -1,134 +1,66 @@
-import spacy
-import re
-# We import the logic we built in the other files
-from src.dbpedia_linker import get_best_entity
+from linker import get_best_entity, extract_entity_spans
+from sentence_transformers import SentenceTransformer, util
 
-# Load Spacy
-print("Loading Spacy Model...")
-nlp = spacy.load("en_core_web_sm")
+# --- 1. RELATION EXTRACTOR LOGIC (Rebel/BERT Simulation) ---
+class RelationExtractor:
+    def __init__(self):
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        self.predicates = {
+            "dbo:team": ["plays for", "signed with", "club", "team"],
+            "dbo:award": ["won", "received", "awarded", "trophy"],
+            "dbo:manager": ["coached by", "under", "manager"],
+            "dbo:recipient": ["received by", "awarded to"]
+        }
+        self.embeddings = {k: self.model.encode(v) for k, v in self.predicates.items()}
 
-# ==========================================
-# HELPER FUNCTIONS
-# ==========================================
-def extract_entity_spans(sentence):
-    """
-    Finds potential entities in a sentence using Spacy.
-    """
-    doc = nlp(sentence)
-    spans = set()
-    for ent in doc.ents:
-        spans.add(ent.text)
-    
-    # Heuristic: Merge consecutive Proper Nouns
-    current = []
-    for token in doc:
-        if token.pos_ == "PROPN":
-            current.append(token.text)
-        else:
-            if len(current) > 1: spans.add(" ".join(current))
-            current = []
-    if len(current) > 1: spans.add(" ".join(current))
-    
-    return list(spans)
+    def extract(self, text, subj, obj):
+        # Extract phrase between entities
+        try:
+            start = text.find(subj) + len(subj)
+            end = text.find(obj)
+            phrase = text[start:end].strip() if start < end else text
+        except: phrase = text
+        
+        # Semantic Match
+        query_vec = self.model.encode(phrase)
+        best_pred, best_score = "None", 0.0
+        
+        for pred, emb in self.embeddings.items():
+            score = util.cos_sim(query_vec, emb).max().item()
+            if score > best_score:
+                best_score = score
+                best_pred = pred
+        
+        return best_pred, best_score, phrase
 
-def is_date_literal(text):
-    """
-    Checks if a string is just a date (so we don't try to link it to Wikipedia).
-    """
-    return bool(re.search(
-        r'\b(\d{1,2}\s+\w+\s+\d{4}|\d{4}-\d{2}-\d{2}|\d{4})\b',
-        text
-    ))
+# --- 2. DEMO RUNNERS ---
 
-# ==========================================
-# TEST CASE 1: STANDARD SENTENCES
-# ==========================================
-def run_general_test():
+def run_sentence_linking_demo():
+    print("\n=== SENTENCE-LEVEL ENTITY LINKING ===")
     sentences = [
+        "Cristiano Ronaldo plays for Al-Nassr.",
         "Barca won La Liga in 2015.",
-        "Man City won the Premier League.",
-        "Messi plays for Inter Miami."
+        "Man City won the Premier League."
     ]
-
-    print("\n[TEST 1] GENERAL ENTITY LINKING")
-    print("=" * 60)
-
-    for i, sent in enumerate(sentences, 1):
-        print(f"\n{i}. {sent}")
+    for sent in sentences:
+        print(f"\nInput: {sent}")
         spans = extract_entity_spans(sent)
         for span in spans:
-            ent, types = get_best_entity(span)
-            print(f"    {span:<20} → {ent:<30} {types[:2]}")
+            ent, types = get_best_entity(span, sentence_context=sent)
+            print(f"   '{span}' -> {ent} {types[:2]}")
 
-# ==========================================
-# TEST CASE 2: THE "BALLON D'OR" CASE
-# ==========================================
-def run_fifa_test():
-    print("\n[TEST 2] SPECIFIC CASE: FIFA BALLON D'OR")
-    print("=" * 60)
+def run_complex_extraction_demo():
+    print("\n=== COMPLEX SENTENCE EXTRACTION ===")
+    extractor = RelationExtractor()
+    text = "Ronaldo plays for Real Madrid and they won the UCL in 2017 under Zinedine Zidane."
     
-    # We manually simulate what the Relation Extractor would find
-    subject_raw = "2010 FIFA Ballon d'Or"
-    relation_raw = "recipient"
-    object_raw = "Lionel Messi"
+    triples = [("Ronaldo", "Real Madrid"), ("Real Madrid", "UCL"), ("Real Madrid", "Zinedine Zidane")]
     
-    print(f"INPUT: {subject_raw} --[{relation_raw}]--> {object_raw}")
-    
-    # Run OUR Linker
-    subj_label, subj_types = get_best_entity(subject_raw)
-    obj_label, obj_types = get_best_entity(object_raw)
-    
-    print(f"    LINKED SUBJECT: {subj_label}")
-    print(f"    LINKED OBJECT:  {obj_label}")
-    
-    if subj_label != "Unknown" and obj_label != "Unknown":
-        print(f"SUCCESS: {subj_label} --[dbo:recipient]--> {obj_label}")
-    else:
-        print("FAILURE: Could not link entities.")
+    print(f"Sentence: {text}")
+    for s, o in triples:
+        pred, score, phrase = extractor.extract(text, s, o)
+        print(f"   [{s}] ... [{o}] -> Phrase: '{phrase}' -> Predicate: {pred} ({score:.2f})")
 
-# ==========================================
-# TEST CASE 3: THE "RONALDO/SPOUSE" CASE
-# ==========================================
-def run_neuro_symbolic_test():
-    print("\n[TEST 3] PLAYER FACT VALIDATION (Neuro-Symbolic Logic)")
-    print("=" * 60)
-
-    test_cases = [
-        {
-            "subject": "Cristiano Ronaldo",
-            "facts": [
-                ("birth date", "5 February 1985", "dbo:birthDate"),
-                ("spouse", "Georgina Rodríguez", "dbo:spouse") 
-            ]
-        }
-    ]
-
-    for case in test_cases:
-        subj = case["subject"]
-        subj_entity, _ = get_best_entity(subj)
-        print(f"SUBJECT: {subj_entity}")
-
-        for rel, obj, predicate in case["facts"]:
-            # 1. Check if it's just a date
-            if is_date_literal(obj):
-                print(f"    {rel:12} -> [LITERAL DATE] \"{obj}\"")
-                continue
-
-            # 2. Link the Object
-            obj_entity, obj_types = get_best_entity(obj)
-            
-            # 3. APPLY NEURO-SYMBOLIC LOGIC (The Fix)
-            # Rule: If Relation is 'spouse' AND Types are missing, ASSUME 'Person'
-            if predicate == "dbo:spouse" and not obj_types:
-                obj_types = ["Person (Inferred)"] 
-            
-            print(f"    {rel:12} -> {subj_entity} --[{predicate}]--> {obj_entity} ({obj_types})")
-
-# ==========================================
-# MAIN EXECUTION
-# ==========================================
 if __name__ == "__main__":
-    # We run all tests to show the mentor everything works
-    run_general_test()
-    run_fifa_test()
-    run_neuro_symbolic_test()
+    run_sentence_linking_demo()
+    run_complex_extraction_demo()
