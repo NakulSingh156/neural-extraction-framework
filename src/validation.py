@@ -17,8 +17,8 @@ class FactChecker:
 
     def _sanitize_uri(self, uri):
         """Prevents SPARQL Injection by ensuring valid URI characters."""
-        # Simple check: URIs shouldn't have spaces or weird control characters
-        clean = re.sub(r'[^a-zA-Z0-9_:/?#=\-\.]', '', uri)
+        # Block characters that can break out of SPARQL angle-bracket URIs
+        clean = re.sub(r'[<>{}\\\s`\'"]', '', uri)
         return clean
 
     def verify_relationship(self, subj_uri, obj_uri):

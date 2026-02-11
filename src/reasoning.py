@@ -1,10 +1,13 @@
 import requests
 import networkx as nx
+import matplotlib
+matplotlib.use('Agg') # Fix: Use non-interactive backend for Docker
 import matplotlib.pyplot as plt
+import os
 
 class NeuroSymbolicReasoner:
     def __init__(self):
-        self.endpoint = "https://dbpedia.org/sparql"
+        self.endpoint = os.getenv("DBPEDIA_ENDPOINT", "https://dbpedia.org/sparql")
     
     def find_path(self, start_entity, end_entity):
         """
@@ -62,12 +65,11 @@ class NeuroSymbolicReasoner:
         try:
             r = requests.get(self.endpoint, params={"query": sparql, "format": "json"}, timeout=5).json()
             return r['results']['bindings']
-        except:
+        except (requests.RequestException, KeyError, ValueError):
             return []
 
     def _plot_graph(self, triples):
-        import matplotlib
-        matplotlib.use('Agg') # Fix: Use non-interactive backend for Docker
+
         
         G = nx.DiGraph()
         for s, p, o in triples:
