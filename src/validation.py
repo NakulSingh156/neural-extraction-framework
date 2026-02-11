@@ -17,8 +17,10 @@ class FactChecker:
 
     def _sanitize_uri(self, uri):
         """Prevents SPARQL Injection by ensuring valid URI characters."""
+        # Fix: Replace spaces with underscores for DBpedia compatibility
+        clean = uri.replace(' ', '_')
         # Block characters that can break out of SPARQL angle-bracket URIs
-        clean = re.sub(r'[<>{}\\\s`\'"]', '', uri)
+        clean = re.sub(r'[<>{}\\\s`\'"]', '', clean)
         return clean
 
     def verify_relationship(self, subj_uri, obj_uri):
@@ -37,7 +39,8 @@ class FactChecker:
         try:
             # Fix: Add timeout
             response = requests.get(self.endpoint, params=params, timeout=10)
-            if response.status_code != 200: return False, []
+            if response.status_code != 200:
+                return False, []
                 
             data = response.json()
             bindings = data.get("results", {}).get("bindings", [])

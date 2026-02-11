@@ -45,7 +45,8 @@ class NeuroSymbolicReasoner:
             mid_uri = item['mid']['value']
             p1 = item['p1']['value'].split('/')[-1]
             
-            if "http://dbpedia.org/resource/" not in mid_uri: continue
+            if "http://dbpedia.org/resource/" not in mid_uri:
+                continue
             
             # Check if THIS neighbor connects to End Entity
             q_check = f"SELECT ?p2 WHERE {{ <{mid_uri}> ?p2 <{end_uri}> }} LIMIT 1"
