@@ -1,0 +1,11 @@
+services:
+  neuro-symbolic-extractor:
+    build: .
+    container_name: dbpedia-neuro-symbolic
+    volumes:
+      - .:/app # Maps your local folder to the container (Hot Reload)
+    environment:
+      - MAX_RETRIES=3
+      - DBPEDIA_ENDPOINT=https://dbpedia.org/sparql
+    command: python src/main.py # Default script to run
+    restart: unless-stopped

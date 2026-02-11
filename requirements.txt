@@ -1,7 +1,7 @@
 requests==2.31.0
 spacy==3.7.2
 rapidfuzz==3.6.1
-sentence-transformers==2.2.2
+sentence-transformers==3.0.0
 networkx==3.2.1
 matplotlib==3.8.2
 torch
