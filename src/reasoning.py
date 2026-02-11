@@ -64,8 +64,9 @@ class NeuroSymbolicReasoner:
 
     def _query(self, sparql):
         try:
-            r = requests.get(self.endpoint, params={"query": sparql, "format": "json"}, timeout=5).json()
-            return r['results']['bindings']
+            response = requests.get(self.endpoint, params={"query": sparql, "format": "json"}, timeout=5)
+            response.raise_for_status()
+            return response.json()['results']['bindings']
         except (requests.RequestException, KeyError, ValueError):
             return []
 
