@@ -3,10 +3,11 @@ import os
 
 def seed_data():
     host = os.getenv("REDIS_HOST", "localhost")
-    r = redis.Redis(host=host, port=6379, decode_responses=True)
+    port = int(os.getenv("REDIS_PORT", 6379)) # Uses environment variable now
     
-    # --- FIX: WIPE OLD DATA ---
-    print("Cleaning old Redis data...")
+    r = redis.Redis(host=host, port=port, decode_responses=True)
+
+    print("⚠️ Warning: Flushing database to ensure clean state...")
     r.flushdb() 
     
     print("Seeding Redis with GSoC25-Style Data...")

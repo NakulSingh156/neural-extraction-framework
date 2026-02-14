@@ -16,6 +16,9 @@ class RelationExtractor:
         # 1. Heuristic Entity Extraction (for demo purposes)
         # We assume the sentence has at least two entities.
         spans = extract_entity_spans(text)
+        # Sort spans by their appearance in the text so it's deterministic
+        spans.sort(key=lambda s: text.find(s))
+
         if len(spans) < 2: 
              return "Unknown", "Unknown", "dbo:related", text
         
@@ -66,12 +69,8 @@ class Pipeline:
             print(f"   Neural Extraction: [{subj_raw}] --({pred})--> [{obj_raw}] (Phrase: '{phrase}')")
             
             # 2. THE PIPELINE BRIDGE (Pass through Redis)
-            subj_linked, _ = self.linker.resolve_entity(subj_raw)
-            obj_linked, _ = self.linker.resolve_entity(obj_raw)
-            
-            # Safety Fallback: If Redis knows it, use the linked version. Otherwise, try the raw string.
-            subj_final = subj_linked if subj_linked else subj_raw
-            obj_final = obj_linked if obj_linked else obj_raw
+            subj_final, _ = self.linker.resolve_entity(subj_raw)
+            obj_final, _ = self.linker.resolve_entity(obj_raw)
             
             # 3. Knowledge Graph Validation
             print("   Validating with Knowledge Graph...")

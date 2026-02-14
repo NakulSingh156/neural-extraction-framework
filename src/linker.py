@@ -7,7 +7,7 @@ from redis_client import RedisClient
 # Load Spacy for NER
 try:
     nlp = spacy.load("en_core_web_sm")
-except:
+except OSError:
     print("⚠️ Warning: Spacy model 'en_core_web_sm' not found. Run: python -m spacy download en_core_web_sm")
     nlp = None
 
@@ -26,9 +26,8 @@ class HybridLinker:
         candidates = self.redis.get_entities(resolved_term)
         
         if not candidates:
-            # Fallback: If not in Redis, return the term itself as a best-effort guess
-            # This ensures we don't crash on terms we didn't seed
-            return resolved_term, "Unresolved"
+            # Return a list to keep return types consistent
+            return resolved_term, ["Unresolved"]
 
         # 3. Simple Disambiguation (No more hardcoded heuristics)
         # If multiple candidates, pick the one that matches the string best
